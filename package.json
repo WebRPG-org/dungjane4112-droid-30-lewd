@@ -10,6 +10,6 @@
     "check": "node -e \"const fs=require('fs'); ['index.html','js/main.js','js/rpg_core.js'].forEach(f => { if (!fs.existsSync(f)) throw new Error('Missing ' + f); }); console.log('Basic static files OK');\""
   },
   "devDependencies": {
-    "http-server": "^14.2.1"
+    "http-server": "^14.1.1"
   }
 }
