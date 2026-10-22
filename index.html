@@ -2,15 +2,34 @@
 <html>
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-        <meta name="viewport" content="user-scalable=no">
         <link rel="icon" href="icon/icon.png" type="image/png">
         <link rel="apple-touch-icon" href="icon/icon.png">
         <link rel="stylesheet" type="text/css" href="fonts/gamefont.css">
         <title>30 Lewd Days with My Adolescent Little Sister</title>
+        <style>
+            html, body {
+                margin: 0;
+                width: 100%;
+                height: 100%;
+                background: #000;
+                overflow: hidden;
+            }
+            body {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        </style>
     </head>
     <body style="background-color: black">
+        <div id="cordova-loading" class="cordova-loading" style="display:none">
+            <div class="spinner"></div>
+        </div>
+
+        <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/libs/pixi.js"></script>
         <script type="text/javascript" src="js/libs/pixi-tilemap.js"></script>
         <script type="text/javascript" src="js/libs/pixi-picture.js"></script>
@@ -27,19 +46,22 @@
         <script type="text/javascript" src="js/main.js"></script>
 
         <script>
-            function launchGame() {
-                if (typeof window.SceneManager !== 'undefined' && typeof window.Scene_Boot !== 'undefined') {
-                    window.SceneManager.run(window.Scene_Boot);
-                    return;
+            function bootGame() {
+                try {
+                    if (window.SceneManager && window.Scene_Boot) {
+                        window.SceneManager.run(window.Scene_Boot);
+                        return;
+                    }
+                    console.error('Game boot objects are not ready yet.');
+                } catch (e) {
+                    console.error('Boot error:', e);
                 }
-
-                console.error('Game assets are not ready yet.');
             }
 
             if (document.readyState === 'loading') {
-                window.addEventListener('DOMContentLoaded', launchGame, { once: true });
+                window.addEventListener('DOMContentLoaded', bootGame, { once: true });
             } else {
-                launchGame();
+                bootGame();
             }
         </script>
     </body>
