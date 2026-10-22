@@ -11,11 +11,6 @@
         <title>30 Lewd Days with My Adolescent Little Sister</title>
     </head>
     <body style="background-color: black">
-        <div id="cordova-loading" class="cordova-loading">
-            <div class="spinner"></div>
-        </div>
-
-        <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/libs/pixi.js"></script>
         <script type="text/javascript" src="js/libs/pixi-tilemap.js"></script>
         <script type="text/javascript" src="js/libs/pixi-picture.js"></script>
@@ -32,77 +27,20 @@
         <script type="text/javascript" src="js/main.js"></script>
 
         <script>
-            (function() {
-                var sceneStarted = false;
-
-                function hideLoading() {
-                    var el = document.getElementById('cordova-loading');
-                    if (el) el.style.display = 'none';
+            function launchGame() {
+                if (typeof window.SceneManager !== 'undefined' && typeof window.Scene_Boot !== 'undefined') {
+                    window.SceneManager.run(window.Scene_Boot);
+                    return;
                 }
 
-                function bootGame() {
-                    if (sceneStarted) return;
-                    sceneStarted = true;
-                    hideLoading();
+                console.error('Game assets are not ready yet.');
+            }
 
-                    function runScene() {
-                        if (typeof window.SceneManager !== 'undefined' && typeof window.Scene_Boot !== 'undefined') {
-                            window.SceneManager.run(window.Scene_Boot);
-                        }
-                    }
-
-                    if (typeof window.DataEncryption !== 'undefined' && typeof window.DataEncryption.setupDataDecryption === 'function') {
-                        window.DataEncryption.setupDataDecryption()
-                            .then(function() {
-                                runScene();
-                            })
-                            .catch(function(error) {
-                                console.error('DataEncryption error:', error);
-                                runScene();
-                            });
-                        return;
-                    }
-
-                    runScene();
-                }
-
-                function startBrowserBoot() {
-                    if (document.readyState === 'complete' || document.readyState === 'interactive') {
-                        bootGame();
-                    } else {
-                        window.addEventListener('DOMContentLoaded', bootGame, { once: true });
-                    }
-                }
-
-                if (typeof window.cordova !== 'undefined') {
-                    var cordovaReady = false;
-                    function tryCordovaBoot() {
-                        if (sceneStarted) return;
-                        if (cordovaReady && document.readyState === 'complete') {
-                            bootGame();
-                        }
-                    }
-
-                    document.addEventListener('deviceready', function() {
-                        cordovaReady = true;
-                        tryCordovaBoot();
-                    }, { once: true });
-
-                    if (document.readyState === 'complete') {
-                        tryCordovaBoot();
-                    } else {
-                        window.addEventListener('load', tryCordovaBoot, { once: true });
-                    }
-
-                    setTimeout(function() {
-                        if (!sceneStarted) {
-                            bootGame();
-                        }
-                    }, 8000);
-                } else {
-                    startBrowserBoot();
-                }
-            })();
+            if (document.readyState === 'loading') {
+                window.addEventListener('DOMContentLoaded', launchGame, { once: true });
+            } else {
+                launchGame();
+            }
         </script>
     </body>
 </html>
