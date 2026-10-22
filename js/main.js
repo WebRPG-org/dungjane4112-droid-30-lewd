@@ -2,6 +2,8 @@
 // main.js
 //=============================================================================
 
-if (typeof PluginManager !== 'undefined' && typeof $plugins !== 'undefined') {
-    PluginManager.setup($plugins);
-}
+PluginManager.setup($plugins);
+
+window.onload = function() {
+    SceneManager.run(Scene_Boot);
+};
