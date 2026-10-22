@@ -11,10 +11,10 @@
         <title>30 Lewd Days with My Adolescent Little Sister</title>
     </head>
     <body style="background-color: black">
-	        <div id="cordova-loading" class="cordova-loading">
+        <div id="cordova-loading" class="cordova-loading">
             <div class="spinner"></div>
         </div>
-		<script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/libs/pixi.js"></script>
         <script type="text/javascript" src="js/libs/pixi-tilemap.js"></script>
         <script type="text/javascript" src="js/libs/pixi-picture.js"></script>
@@ -29,63 +29,71 @@
         <script type="text/javascript" src="js/rpg_windows.js"></script>
         <script type="text/javascript" src="js/plugins.js"></script>
         <script type="text/javascript" src="js/main.js"></script>
-		<script>
+        <script>
             var sceneStarted = false;
-            
+
+            function hideLoadingScreen() {
+                var loading = document.getElementById('cordova-loading');
+                if (loading) {
+                    loading.style.display = 'none';
+                }
+            }
+
             function startScene() {
                 if (sceneStarted) return;
                 sceneStarted = true;
-                if (typeof DataEncryption !== 'undefined') {
-                    DataEncryption.setupDataDecryption()
+
+                hideLoadingScreen();
+
+                if (typeof window.DataEncryption !== 'undefined' &&
+                    typeof window.DataEncryption.setupDataDecryption === 'function') {
+                    window.DataEncryption.setupDataDecryption()
                         .then(function() {
-                            document.getElementById('cordova-loading').style.display = 'none';
-                            
-                            if (typeof SceneManager !== 'undefined') {
-                                SceneManager.run(Scene_Boot);
+                            if (typeof window.SceneManager !== 'undefined' && typeof window.Scene_Boot !== 'undefined') {
+                                window.SceneManager.run(window.Scene_Boot);
                             }
                         })
                         .catch(function(error) {
                             console.error('DataEncryption error:', error);
-                            document.getElementById('cordova-loading').style.display = 'none';
-                            
-                            if (typeof SceneManager !== 'undefined') {
-                                SceneManager.run(Scene_Boot);
+                            if (typeof window.SceneManager !== 'undefined' && typeof window.Scene_Boot !== 'undefined') {
+                                window.SceneManager.run(window.Scene_Boot);
                             }
                         });
-                } else {
-                    document.getElementById('cordova-loading').style.display = 'none';
-                    
-                    if (typeof SceneManager !== 'undefined') {
-                        SceneManager.run(Scene_Boot);
-                    }
+                    return;
+                }
+
+                if (typeof window.SceneManager !== 'undefined' && typeof window.Scene_Boot !== 'undefined') {
+                    window.SceneManager.run(window.Scene_Boot);
                 }
             }
-            
-            if (typeof cordova !== 'undefined') {
+
+            if (typeof window.cordova !== 'undefined') {
                 var cordovaDevReady = false;
                 function tryStart() {
                     if (sceneStarted) return;
-                    if (cordovaDevReady && document.readyState === 'complete') startScene();
+                    if (cordovaDevReady && document.readyState === 'complete') {
+                        startScene();
+                    }
                 }
+
                 document.addEventListener('deviceready', function() {
                     cordovaDevReady = true;
                     tryStart();
                 }, false);
+
                 if (document.readyState === 'complete') {
                     tryStart();
                 } else {
                     window.addEventListener('load', tryStart, false);
                 }
+
                 setTimeout(function() {
                     if (!sceneStarted) startScene();
                 }, 8000);
             } else {
-                // N
-                document.getElementById('cordova-loading').style.display = 'none';
-                
-                if (typeof SceneManager !== 'undefined') {
-                    SceneManager.run(Scene_Boot);
-                }
+                window.addEventListener('DOMContentLoaded', function() {
+                    startScene();
+                }, { once: true });
             }
         </script>
     </body>
