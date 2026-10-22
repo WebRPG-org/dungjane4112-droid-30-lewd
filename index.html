@@ -22,9 +22,14 @@
       align-items: center;
       justify-content: center;
     }
+    canvas {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+    }
   </style>
 </head>
-<body style="background-color: black">
+<body>
   <script src="js/libs/pixi.js"></script>
   <script src="js/libs/pixi-tilemap.js"></script>
   <script src="js/libs/pixi-picture.js"></script>
@@ -39,25 +44,5 @@
   <script src="js/rpg_windows.js"></script>
   <script src="js/plugins.js"></script>
   <script src="js/main.js"></script>
-
-  <script>
-    function launchGame() {
-      try {
-        if (window.SceneManager && window.Scene_Boot) {
-          window.SceneManager.run(window.Scene_Boot);
-          return;
-        }
-        console.error('Game boot objects are not ready.');
-      } catch (e) {
-        console.error('Boot error:', e);
-      }
-    }
-
-    if (document.readyState === 'loading') {
-      window.addEventListener('DOMContentLoaded', launchGame, { once: true });
-    } else {
-      launchGame();
-    }
-  </script>
 </body>
 </html>
