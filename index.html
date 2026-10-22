@@ -14,6 +14,7 @@
         <div id="cordova-loading" class="cordova-loading">
             <div class="spinner"></div>
         </div>
+
         <script type="text/javascript" src="cordova.js"></script>
         <script type="text/javascript" src="js/libs/pixi.js"></script>
         <script type="text/javascript" src="js/libs/pixi-tilemap.js"></script>
@@ -29,72 +30,79 @@
         <script type="text/javascript" src="js/rpg_windows.js"></script>
         <script type="text/javascript" src="js/plugins.js"></script>
         <script type="text/javascript" src="js/main.js"></script>
+
         <script>
-            var sceneStarted = false;
+            (function() {
+                var sceneStarted = false;
 
-            function hideLoadingScreen() {
-                var loading = document.getElementById('cordova-loading');
-                if (loading) {
-                    loading.style.display = 'none';
-                }
-            }
-
-            function startScene() {
-                if (sceneStarted) return;
-                sceneStarted = true;
-
-                hideLoadingScreen();
-
-                if (typeof window.DataEncryption !== 'undefined' &&
-                    typeof window.DataEncryption.setupDataDecryption === 'function') {
-                    window.DataEncryption.setupDataDecryption()
-                        .then(function() {
-                            if (typeof window.SceneManager !== 'undefined' && typeof window.Scene_Boot !== 'undefined') {
-                                window.SceneManager.run(window.Scene_Boot);
-                            }
-                        })
-                        .catch(function(error) {
-                            console.error('DataEncryption error:', error);
-                            if (typeof window.SceneManager !== 'undefined' && typeof window.Scene_Boot !== 'undefined') {
-                                window.SceneManager.run(window.Scene_Boot);
-                            }
-                        });
-                    return;
+                function hideLoading() {
+                    var el = document.getElementById('cordova-loading');
+                    if (el) el.style.display = 'none';
                 }
 
-                if (typeof window.SceneManager !== 'undefined' && typeof window.Scene_Boot !== 'undefined') {
-                    window.SceneManager.run(window.Scene_Boot);
-                }
-            }
-
-            if (typeof window.cordova !== 'undefined') {
-                var cordovaDevReady = false;
-                function tryStart() {
+                function bootGame() {
                     if (sceneStarted) return;
-                    if (cordovaDevReady && document.readyState === 'complete') {
-                        startScene();
+                    sceneStarted = true;
+                    hideLoading();
+
+                    function runScene() {
+                        if (typeof window.SceneManager !== 'undefined' && typeof window.Scene_Boot !== 'undefined') {
+                            window.SceneManager.run(window.Scene_Boot);
+                        }
+                    }
+
+                    if (typeof window.DataEncryption !== 'undefined' && typeof window.DataEncryption.setupDataDecryption === 'function') {
+                        window.DataEncryption.setupDataDecryption()
+                            .then(function() {
+                                runScene();
+                            })
+                            .catch(function(error) {
+                                console.error('DataEncryption error:', error);
+                                runScene();
+                            });
+                        return;
+                    }
+
+                    runScene();
+                }
+
+                function startBrowserBoot() {
+                    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                        bootGame();
+                    } else {
+                        window.addEventListener('DOMContentLoaded', bootGame, { once: true });
                     }
                 }
 
-                document.addEventListener('deviceready', function() {
-                    cordovaDevReady = true;
-                    tryStart();
-                }, false);
+                if (typeof window.cordova !== 'undefined') {
+                    var cordovaReady = false;
+                    function tryCordovaBoot() {
+                        if (sceneStarted) return;
+                        if (cordovaReady && document.readyState === 'complete') {
+                            bootGame();
+                        }
+                    }
 
-                if (document.readyState === 'complete') {
-                    tryStart();
+                    document.addEventListener('deviceready', function() {
+                        cordovaReady = true;
+                        tryCordovaBoot();
+                    }, { once: true });
+
+                    if (document.readyState === 'complete') {
+                        tryCordovaBoot();
+                    } else {
+                        window.addEventListener('load', tryCordovaBoot, { once: true });
+                    }
+
+                    setTimeout(function() {
+                        if (!sceneStarted) {
+                            bootGame();
+                        }
+                    }, 8000);
                 } else {
-                    window.addEventListener('load', tryStart, false);
+                    startBrowserBoot();
                 }
-
-                setTimeout(function() {
-                    if (!sceneStarted) startScene();
-                }, 8000);
-            } else {
-                window.addEventListener('DOMContentLoaded', function() {
-                    startScene();
-                }, { once: true });
-            }
+            })();
         </script>
     </body>
 </html>
