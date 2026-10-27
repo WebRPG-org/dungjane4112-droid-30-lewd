@@ -44,5 +44,81 @@
   <script src="js/rpg_windows.js"></script>
   <script src="js/plugins.js"></script>
   <script src="js/main.js"></script>
+  <script>
+    (function() {
+    // 1. Tạo phần tử nút bấm
+    const btn = document.createElement('button');
+    btn.innerHTML = '⛶ Xoay ngang & Toàn màn hình';
+    btn.id = 'fullscreen-landscape-btn';
+
+    // 2. Style cho nút (Thích ứng mọi màn hình, nằm cố định ở góc dưới bên phải)
+    Object.assign(btn.style, {
+        position: 'fixed',
+        bottom: '20px',
+        right: '20px',
+        zIndex: '999999',
+        padding: '12px 18px',
+        backgroundColor: '#2563eb',
+        color: '#ffffff',
+        border: 'none',
+        borderRadius: '8px',
+        cursor: 'pointer',
+        fontSize: '14px',
+        fontWeight: '600',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+        transition: 'all 0.2s ease-in-out',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        fontFamily: 'system-ui, -apple-system, sans-serif'
+    });
+
+    // Hiệu ứng hover khi rê chuột
+    btn.onmouseover = () => {
+        btn.style.backgroundColor = '#1d4ed8';
+        btn.style.transform = 'translateY(-2px)';
+    };
+    btn.onmouseout = () => {
+        btn.style.backgroundColor = '#2563eb';
+        btn.style.transform = 'translateY(0)';
+    };
+
+    // 3. Xử lý sự kiện khi bấm vào nút
+    btn.onclick = async () => {
+        try {
+            // Yêu cầu bật chế độ toàn màn hình
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                await elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) { /* Safari / Older Webkit */
+                await elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { /* IE/Edge */
+                await elem.msRequestFullscreen();
+            }
+
+            // Yêu cầu ép xoay ngang màn hình (Screen Orientation API)
+            if (screen.orientation && screen.orientation.lock) {
+                try {
+                    await screen.orientation.lock('landscape');
+                } catch (err) {
+                    console.warn('Trình duyệt hoặc thiết bị không cho phép khóa hướng màn hình:', err);
+                }
+            }
+        } catch (error) {
+            console.error('Không thể kích hoạt toàn màn hình:', error);
+        }
+    };
+
+    // 4. Tự động chèn nút vào trang web khi DOM sẵn sàng
+    if (document.body) {
+        document.body.appendChild(btn);
+    } else {
+        window.addEventListener('DOMContentLoaded', () => {
+            document.body.appendChild(btn);
+        });
+    }
+})();
+    
+  </script>
 </body>
 </html>
